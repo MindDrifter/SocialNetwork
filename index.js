@@ -2,15 +2,20 @@ const express = require('express')
 const app = express()
 const server = require('http').createServer(app)
 const io = require('socket.io')(server)
+//const router = express.Router()
+const mogoose = require('mongoose')
+const api = require('./routes/api')
+app.use(express.urlencoded({extended:true}))
+app.use(express.json())
+app.use('/api', api)
 
-
+startDB()
 
 app.get('/', (req, res)=> {
     res.sendFile(__dirname + '/index.html');
-    
   })
  
-  io.on('connection', socket => {
+  io.on('connection', socket =>{
 
     console.log('Client connected.');
     var users = [];
@@ -21,7 +26,6 @@ app.get('/', (req, res)=> {
     });
   }
 
-
     socket.on('chatMessage', msg =>{
         console.log(msg.name);
         console.log(users);
@@ -29,7 +33,7 @@ app.get('/', (req, res)=> {
     })
 
     // Disconnect listener
-    socket.on('disconnect', (data)=> {
+    socket.on('disconnect', ()=>{
         console.log('Client disconnected.');
         //console.log(socket.id);
         //users.splice(users.indexOf(socket.id), 1)
@@ -41,9 +45,21 @@ app.get('/', (req, res)=> {
             console.log(users);
           }
         })
-        
     });
 });
+
+async function startDB(){
+  try {
+    await mogoose.connect('mongodb+srv://m:1q2w3e4r@cluster0.n6onj.mongodb.net/BD', {
+        useNewUrlParser: true,
+        useFindAndModify:false,
+        useUnifiedTopology: true 
+    })
+      console.log('connected to MongoDB');
+  } catch (e) {
+      console.log(e);
+  }
+}
 
 
 server.listen(80)
