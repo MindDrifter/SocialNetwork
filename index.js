@@ -21,6 +21,7 @@ app.get('/', (req, res)=> {
     });
   }
 
+
     socket.on('chatMessage', msg =>{
         console.log(msg.name);
         console.log(users);
@@ -32,8 +33,15 @@ app.get('/', (req, res)=> {
         console.log('Client disconnected.');
         //console.log(socket.id);
         //users.splice(users.indexOf(socket.id), 1)
-        delete users[socket.id]
-        console.log(users);
+        //delete users[socket.id]
+        //console.log(socket.id);
+        users.forEach((item, key)=>{
+          if(item.userID === socket.id){
+            users.splice(key, 1)
+            console.log(users);
+          }
+        })
+        
     });
 });
 
