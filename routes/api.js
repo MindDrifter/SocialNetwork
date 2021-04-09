@@ -3,6 +3,7 @@ const NewModel = require('../models/newModel')
 const sha = require('js-sha256')
 const router  = express.Router()
 const multer = require('multer')
+const fs = require('fs')
 
 const storage = multer.diskStorage({
     destination: function(req, file,callback ){
@@ -10,7 +11,7 @@ const storage = multer.diskStorage({
     },
     filename: function(req, file, callback){
         callback(null, Date.now()+file.originalname)
-    }
+    },
 })
 
 const upload = multer({
@@ -19,7 +20,6 @@ const upload = multer({
         fileSize: 1024 * 1024 * 3,
     },
 })
-
 
 //GET
 router.get('/', async (req, res)=>{ 
@@ -69,10 +69,17 @@ router.post('/login', async(req, res)=>{
     })
 })
 
-
-router.post('/upload',upload.single('image'), async(req, res)=>{
-   console.log(req.file);
+router.post('/upload', async(req, res)=>{
+    //const base64 = fs.readFileSync(__dirname+"/images/new-asdasdpath.jpg", "base64");
+    //console.log(base64);
+    const buffer = Buffer.from(req.body.image, "base64");
+    //fs.writeFileSync("new-asdasdpath.jpg", buffer);
+    fs.writeFileSync(__dirname+'/images/new-asdasdpath'+Date.now()+ '.jpg', buffer);
 })
+
+router.get('/get', async(req, res)=>{
+    res.sendFile(__dirname+'/images/img.jpg')
+ })
 
 //DELETE
 router.delete('/delete', async(req, res)=>{
