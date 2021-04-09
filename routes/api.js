@@ -2,6 +2,24 @@ const express = require('express')
 const NewModel = require('../models/newModel')
 const sha = require('js-sha256')
 const router  = express.Router()
+const multer = require('multer')
+
+const storage = multer.diskStorage({
+    destination: function(req, file,callback ){
+        callback(null, './images/')
+    },
+    filename: function(req, file, callback){
+        callback(null, Date.now()+file.originalname)
+    }
+})
+
+const upload = multer({
+    storage:storage,
+    limits:{
+        fileSize: 1024 * 1024 * 3,
+    },
+})
+
 
 //GET
 router.get('/', async (req, res)=>{ 
@@ -23,7 +41,9 @@ router.post('/register', async(req, res)=>{
     }else{
         const model = new NewModel({
             login: login ,
-            token: token
+            token: token,
+            name: req.body.name,
+            lastName: req.body.lastName
         })
         await model.save()
         res.status(201).send({
@@ -43,7 +63,15 @@ router.post('/login', async(req, res)=>{
     })
     res.status(200).json({
         msg:'Вы успешно вошли',
-        token:value[0].token})
+        token:value[0].token,
+        name:value[0].name,
+        lastName: value[0].lastName
+    })
+})
+
+
+router.post('/upload',upload.single('image'), async(req, res)=>{
+   console.log(req.file);
 })
 
 //DELETE
